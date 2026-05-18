@@ -39,7 +39,7 @@ jobs:
             --min-instances 0 \
             --max-instances 2 \
             --memory 512Mi \
-            --set-env-vars "FOOTBALL_DATA_API_KEY=${{ secrets.FOOTBALL_DATA_API_KEY }}" \
+            --set-env-vars "RAPIDAPI_KEY=${{ secrets.RAPIDAPI_KEY }}" \
             --project "$PROJECT_ID"
 
       - name: Show service URL

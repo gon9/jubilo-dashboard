@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from src.fetch.football_data import FootballDataClient
+from src.fetch.api_football import ApiFootballClient
 
 
 def save_json(path: Path, data: dict) -> None:
@@ -23,7 +23,7 @@ def save_json(path: Path, data: dict) -> None:
 
 
 def main(season: int) -> None:
-    client = FootballDataClient()
+    client = ApiFootballClient()
     data_dir = ROOT / "data"
 
     print(f"Fetching season {season} ...")
@@ -36,10 +36,9 @@ def main(season: int) -> None:
         print("WARNING: Jubilo Iwata not found in standings. Check team name or season.")
     else:
         print(f"Jubilo Iwata team_id = {team_id}")
-    # team_id をメタデータとして保存
     save_json(data_dir / "meta.json", {"team_id": team_id, "season": season})
 
-    matches = client.get_matches(season)
+    matches = client.get_matches(season, team_id=team_id)
     save_json(data_dir / "matches.json", matches)
 
     scorers = client.get_scorers(season)

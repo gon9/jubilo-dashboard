@@ -1,0 +1,18 @@
+{
+  "matches": [
+    {"id":1,"matchday":1, "utcDate":"2025-02-22","status":"FINISHED","homeTeam":{"id":2635,"name":"Jubilo Iwata"},        "awayTeam":{"id":2640,"name":"Cerezo Osaka"},       "score":{"fullTime":{"home":2,"away":1}}},
+    {"id":2,"matchday":2, "utcDate":"2025-03-01","status":"FINISHED","homeTeam":{"id":2636,"name":"Vissel Kobe"},          "awayTeam":{"id":2635,"name":"Jubilo Iwata"},        "score":{"fullTime":{"home":3,"away":1}}},
+    {"id":3,"matchday":3, "utcDate":"2025-03-08","status":"FINISHED","homeTeam":{"id":2635,"name":"Jubilo Iwata"},        "awayTeam":{"id":2638,"name":"Kashima Antlers"},    "score":{"fullTime":{"home":1,"away":1}}},
+    {"id":4,"matchday":4, "utcDate":"2025-03-15","status":"FINISHED","homeTeam":{"id":2644,"name":"Kawasaki Frontale"},   "awayTeam":{"id":2635,"name":"Jubilo Iwata"},        "score":{"fullTime":{"home":0,"away":2}}},
+    {"id":5,"matchday":5, "utcDate":"2025-03-22","status":"FINISHED","homeTeam":{"id":2635,"name":"Jubilo Iwata"},        "awayTeam":{"id":2639,"name":"Yokohama F. Marinos"},"score":{"fullTime":{"home":1,"away":2}}},
+    {"id":6,"matchday":6, "utcDate":"2025-04-05","status":"FINISHED","homeTeam":{"id":2641,"name":"Urawa Red Diamonds"},  "awayTeam":{"id":2635,"name":"Jubilo Iwata"},        "score":{"fullTime":{"home":1,"away":1}}},
+    {"id":7,"matchday":7, "utcDate":"2025-04-12","status":"FINISHED","homeTeam":{"id":2635,"name":"Jubilo Iwata"},        "awayTeam":{"id":2645,"name":"FC Tokyo"},            "score":{"fullTime":{"home":3,"away":0}}},
+    {"id":8,"matchday":8, "utcDate":"2025-04-19","status":"FINISHED","homeTeam":{"id":2647,"name":"Albirex Niigata"},     "awayTeam":{"id":2635,"name":"Jubilo Iwata"},        "score":{"fullTime":{"home":2,"away":2}}},
+    {"id":9,"matchday":9, "utcDate":"2025-04-26","status":"FINISHED","homeTeam":{"id":2635,"name":"Jubilo Iwata"},        "awayTeam":{"id":2637,"name":"Gamba Osaka"},         "score":{"fullTime":{"home":0,"away":1}}},
+    {"id":10,"matchday":10,"utcDate":"2025-05-03","status":"FINISHED","homeTeam":{"id":2643,"name":"Sanfrecce Hiroshima"},"awayTeam":{"id":2635,"name":"Jubilo Iwata"},        "score":{"fullTime":{"home":1,"away":2}}},
+    {"id":11,"matchday":11,"utcDate":"2025-05-10","status":"FINISHED","homeTeam":{"id":2635,"name":"Jubilo Iwata"},        "awayTeam":{"id":2646,"name":"Avispa Fukuoka"},     "score":{"fullTime":{"home":2,"away":0}}},
+    {"id":12,"matchday":12,"utcDate":"2025-05-17","status":"FINISHED","homeTeam":{"id":2642,"name":"Nagoya Grampus"},     "awayTeam":{"id":2635,"name":"Jubilo Iwata"},        "score":{"fullTime":{"home":0,"away":0}}},
+    {"id":13,"matchday":13,"utcDate":"2025-05-24","status":"FINISHED","homeTeam":{"id":2635,"name":"Jubilo Iwata"},        "awayTeam":{"id":2648,"name":"Shonan Bellmare"},    "score":{"fullTime":{"home":3,"away":1}}},
+    {"id":14,"matchday":14,"utcDate":"2025-05-31","status":"FINISHED","homeTeam":{"id":2650,"name":"Machida Zelvia"},     "awayTeam":{"id":2635,"name":"Jubilo Iwata"},        "score":{"fullTime":{"home":1,"away":1}}}
+  ]
+}

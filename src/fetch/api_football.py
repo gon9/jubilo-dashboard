@@ -6,25 +6,36 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_URL = "https://api-football-v1.p.rapidapi.com/v3"
-RAPIDAPI_HOST = "api-football-v1.p.rapidapi.com"
 J1_LEAGUE_ID = 98
 TEAM_NAME = "Jubilo Iwata"
 
 _RATE_LIMIT_SLEEP = 1
 
+# api-football.com 直接登録の場合
+_DIRECT_BASE_URL = "https://v3.football.api-sports.io"
+# RapidAPI 経由の場合
+_RAPIDAPI_BASE_URL = "https://api-football-v1.p.rapidapi.com/v3"
+_RAPIDAPI_HOST = "api-football-v1.p.rapidapi.com"
+
 
 class ApiFootballClient:
     def __init__(self, api_key: str | None = None):
-        key = api_key or os.environ.get("RAPIDAPI_KEY", "")
+        key = api_key or os.environ.get("API_FOOTBALL_KEY") or os.environ.get("RAPIDAPI_KEY", "")
+        # RapidAPI キーは "rapid_" プレフィックスで区別、それ以外は直接 API
+        use_rapidapi = bool(os.environ.get("RAPIDAPI_KEY") and not os.environ.get("API_FOOTBALL_KEY"))
         self.session = requests.Session()
-        self.session.headers.update({
-            "X-RapidAPI-Key": key,
-            "X-RapidAPI-Host": RAPIDAPI_HOST,
-        })
+        if use_rapidapi:
+            self.base_url = _RAPIDAPI_BASE_URL
+            self.session.headers.update({
+                "X-RapidAPI-Key": key,
+                "X-RapidAPI-Host": _RAPIDAPI_HOST,
+            })
+        else:
+            self.base_url = _DIRECT_BASE_URL
+            self.session.headers.update({"x-apisports-key": key})
 
     def _get(self, path: str, params: dict | None = None) -> dict:
-        resp = self.session.get(f"{BASE_URL}{path}", params=params, timeout=30)
+        resp = self.session.get(f"{self.base_url}{path}", params=params, timeout=30)
         resp.raise_for_status()
         time.sleep(_RATE_LIMIT_SLEEP)
         return resp.json()

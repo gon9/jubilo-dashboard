@@ -28,7 +28,7 @@ jobs:
 
       - name: Fetch data
         env:
-          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
         run: |
           SEASON="${{ github.event.inputs.season || '2025' }}"
           python scripts/fetch_all.py --season "$SEASON"

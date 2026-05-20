@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 J1_LEAGUE_ID = 98
+J2_LEAGUE_ID = 99
+LEAGUE_IDS = [J1_LEAGUE_ID, J2_LEAGUE_ID]
 TEAM_NAME = "Jubilo Iwata"
 
 _RATE_LIMIT_SLEEP = 1
@@ -42,19 +44,26 @@ class ApiFootballClient:
 
     # ── 正規化済みレスポンス (football-data.org 互換フォーマット) ──────────────
 
-    def get_standings(self, season: int) -> dict:
+    def get_standings(self, season: int) -> tuple[dict, int]:
+        """J1→J2の順で探してジュビロがいるリーグの順位表を返す。リーグIDも返す。"""
+        for league_id in LEAGUE_IDS:
+            raw = self._get("/standings", params={"league": league_id, "season": season})
+            standings = _normalize_standings(raw)
+            if self.find_team_id(standings) is not None:
+                return standings, league_id
+        # どちらにも見つからなければ J1 の結果を返す
         raw = self._get("/standings", params={"league": J1_LEAGUE_ID, "season": season})
-        return _normalize_standings(raw)
+        return _normalize_standings(raw), J1_LEAGUE_ID
 
-    def get_matches(self, season: int, team_id: int | None = None) -> dict:
-        params: dict = {"league": J1_LEAGUE_ID, "season": season}
+    def get_matches(self, season: int, team_id: int | None = None, league_id: int = J1_LEAGUE_ID) -> dict:
+        params: dict = {"league": league_id, "season": season}
         if team_id:
             params["team"] = team_id
         raw = self._get("/fixtures", params=params)
         return _normalize_matches(raw)
 
-    def get_scorers(self, season: int, limit: int = 20) -> dict:
-        raw = self._get("/players/topscorers", params={"league": J1_LEAGUE_ID, "season": season})
+    def get_scorers(self, season: int, limit: int = 20, league_id: int = J1_LEAGUE_ID) -> dict:
+        raw = self._get("/players/topscorers", params={"league": league_id, "season": season})
         return _normalize_scorers(raw, limit)
 
     def find_team_id(self, standings: dict) -> int | None:

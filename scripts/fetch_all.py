@@ -28,20 +28,20 @@ def main(season: int) -> None:
 
     print(f"Fetching season {season} ...")
 
-    standings = client.get_standings(season)
+    standings, league_id = client.get_standings(season)
     save_json(data_dir / "standings.json", standings)
 
     team_id = client.find_team_id(standings)
     if team_id is None:
         print("WARNING: Jubilo Iwata not found in standings. Check team name or season.")
     else:
-        print(f"Jubilo Iwata team_id = {team_id}")
-    save_json(data_dir / "meta.json", {"team_id": team_id, "season": season})
+        print(f"Jubilo Iwata team_id={team_id} league_id={league_id}")
+    save_json(data_dir / "meta.json", {"team_id": team_id, "season": season, "league_id": league_id})
 
-    matches = client.get_matches(season, team_id=team_id)
+    matches = client.get_matches(season, team_id=team_id, league_id=league_id)
     save_json(data_dir / "matches.json", matches)
 
-    scorers = client.get_scorers(season)
+    scorers = client.get_scorers(season, league_id=league_id)
     save_json(data_dir / "scorers.json", scorers)
 
     print("Done.")

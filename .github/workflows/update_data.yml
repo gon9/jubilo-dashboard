@@ -23,14 +23,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: uv pip install --system -r requirements.txt
+      - run: uv sync --frozen
 
       - name: Fetch data
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
         run: |
           SEASON="${{ github.event.inputs.season || '2025' }}"
-          python scripts/fetch_all.py --season "$SEASON"
+          uv run python scripts/fetch_all.py --season "$SEASON"
 
       - name: Commit updated data
         run: |

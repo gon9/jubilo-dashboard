@@ -49,6 +49,6 @@ def main(season: int) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--season", type=int, default=2025)
+    parser.add_argument("--season", type=int, default=2024)
     args = parser.parse_args()
     main(args.season)

@@ -1,0 +1,158 @@
+import os
+import re
+import time
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+J1_LEAGUE_ID = 98
+J2_LEAGUE_ID = 99
+LEAGUE_IDS = [J1_LEAGUE_ID, J2_LEAGUE_ID]
+TEAM_NAME = "Jubilo Iwata"
+
+_RATE_LIMIT_SLEEP = 1
+
+# api-football.com 直接登録の場合
+_DIRECT_BASE_URL = "https://v3.football.api-sports.io"
+# RapidAPI 経由の場合
+_RAPIDAPI_BASE_URL = "https://api-football-v1.p.rapidapi.com/v3"
+_RAPIDAPI_HOST = "api-football-v1.p.rapidapi.com"
+
+
+class ApiFootballClient:
+    def __init__(self, api_key: str | None = None):
+        key = api_key or os.environ.get("API_FOOTBALL_KEY") or os.environ.get("RAPIDAPI_KEY", "")
+        # RapidAPI キーは "rapid_" プレフィックスで区別、それ以外は直接 API
+        use_rapidapi = bool(os.environ.get("RAPIDAPI_KEY") and not os.environ.get("API_FOOTBALL_KEY"))
+        self.session = requests.Session()
+        if use_rapidapi:
+            self.base_url = _RAPIDAPI_BASE_URL
+            self.session.headers.update({
+                "X-RapidAPI-Key": key,
+                "X-RapidAPI-Host": _RAPIDAPI_HOST,
+            })
+        else:
+            self.base_url = _DIRECT_BASE_URL
+            self.session.headers.update({"x-apisports-key": key})
+
+    def _get(self, path: str, params: dict | None = None) -> dict:
+        resp = self.session.get(f"{self.base_url}{path}", params=params, timeout=30)
+        resp.raise_for_status()
+        time.sleep(_RATE_LIMIT_SLEEP)
+        return resp.json()
+
+    # ── 正規化済みレスポンス (football-data.org 互換フォーマット) ──────────────
+
+    def get_standings(self, season: int) -> tuple[dict, int]:
+        """J1→J2の順で探してジュビロがいるリーグの順位表を返す。リーグIDも返す。"""
+        for league_id in LEAGUE_IDS:
+            raw = self._get("/standings", params={"league": league_id, "season": season})
+            standings = _normalize_standings(raw)
+            if self.find_team_id(standings) is not None:
+                return standings, league_id
+        # どちらにも見つからなければ J1 の結果を返す
+        raw = self._get("/standings", params={"league": J1_LEAGUE_ID, "season": season})
+        return _normalize_standings(raw), J1_LEAGUE_ID
+
+    def get_matches(self, season: int, team_id: int | None = None, league_id: int = J1_LEAGUE_ID) -> dict:
+        params: dict = {"league": league_id, "season": season}
+        if team_id:
+            params["team"] = team_id
+        raw = self._get("/fixtures", params=params)
+        return _normalize_matches(raw)
+
+    def get_scorers(self, season: int, limit: int = 20, league_id: int = J1_LEAGUE_ID) -> dict:
+        raw = self._get("/players/topscorers", params={"league": league_id, "season": season})
+        return _normalize_scorers(raw, limit)
+
+    def find_team_id(self, standings: dict) -> int | None:
+        for table in standings.get("standings", []):
+            for row in table.get("table", []):
+                if TEAM_NAME.lower() in row["team"]["name"].lower():
+                    return row["team"]["id"]
+        return None
+
+
+# ── 正規化ヘルパー ────────────────────────────────────────────────────────────
+
+def _normalize_standings(raw: dict) -> dict:
+    rows = []
+    for entry in raw.get("response", []):
+        league = entry.get("league", {})
+        for group in league.get("standings", []):
+            for r in group:
+                team = r.get("team", {})
+                all_stats = r.get("all", {})
+                goals = all_stats.get("goals", {})
+                rows.append({
+                    "position": r.get("rank"),
+                    "team": {"id": team.get("id"), "name": team.get("name", "")},
+                    "playedGames": all_stats.get("played", 0),
+                    "won": all_stats.get("win", 0),
+                    "draw": all_stats.get("draw", 0),
+                    "lost": all_stats.get("lose", 0),
+                    "goalsFor": goals.get("for", 0),
+                    "goalsAgainst": goals.get("against", 0),
+                    "goalDifference": r.get("goalsDiff", 0),
+                    "points": r.get("points", 0),
+                })
+    return {"standings": [{"type": "TOTAL", "table": rows}]}
+
+
+def _extract_matchday(round_str: str | None) -> int | None:
+    m = re.search(r"\d+", round_str or "")
+    return int(m.group()) if m else None
+
+
+def _normalize_matches(raw: dict) -> dict:
+    matches = []
+    for f in raw.get("response", []):
+        fixture = f.get("fixture", {})
+        status_short = fixture.get("status", {}).get("short", "")
+        status_map = {"FT": "FINISHED", "1H": "IN_PLAY", "2H": "IN_PLAY", "HT": "IN_PLAY"}
+        status = status_map.get(status_short, status_short)
+
+        teams = f.get("teams", {})
+        goals = f.get("goals", {})
+        league = f.get("league", {})
+
+        matches.append({
+            "id": fixture.get("id"),
+            "matchday": _extract_matchday(league.get("round")),
+            "utcDate": (fixture.get("date") or "")[:10],
+            "status": status,
+            "homeTeam": {
+                "id": teams.get("home", {}).get("id"),
+                "name": teams.get("home", {}).get("name", ""),
+            },
+            "awayTeam": {
+                "id": teams.get("away", {}).get("id"),
+                "name": teams.get("away", {}).get("name", ""),
+            },
+            "score": {
+                "fullTime": {
+                    "home": goals.get("home"),
+                    "away": goals.get("away"),
+                }
+            },
+        })
+    return {"matches": matches}
+
+
+def _normalize_scorers(raw: dict, limit: int) -> dict:
+    scorers = []
+    for entry in raw.get("response", [])[:limit]:
+        player = entry.get("player", {})
+        stats = (entry.get("statistics") or [{}])[0]
+        goals_info = stats.get("goals", {})
+        games_info = stats.get("games", {})
+        team_info = stats.get("team", {})
+        scorers.append({
+            "player": {"name": player.get("name", "")},
+            "team": {"name": team_info.get("name", "")},
+            "goals": goals_info.get("total") or 0,
+            "assists": goals_info.get("assists") or 0,
+            "playedMatches": games_info.get("appearences") or 0,
+        })
+    return {"scorers": scorers}

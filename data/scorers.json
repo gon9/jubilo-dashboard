@@ -1,0 +1,14 @@
+{
+  "scorers": [
+    {"player":{"name":"Patric"},          "team":{"name":"Vissel Kobe"},          "goals":12,"assists":3,"playedMatches":14},
+    {"player":{"name":"Leandro Pereira"}, "team":{"name":"Gamba Osaka"},          "goals":10,"assists":4,"playedMatches":14},
+    {"player":{"name":"Everaldo"},        "team":{"name":"Kashima Antlers"},      "goals":9, "assists":2,"playedMatches":13},
+    {"player":{"name":"Anderson Lopes"}, "team":{"name":"Yokohama F. Marinos"},  "goals":8, "assists":5,"playedMatches":14},
+    {"player":{"name":"Takuma Nishimura"},"team":{"name":"Jubilo Iwata"},         "goals":7, "assists":3,"playedMatches":14},
+    {"player":{"name":"Fangzhuo"},        "team":{"name":"Cerezo Osaka"},         "goals":6, "assists":2,"playedMatches":12},
+    {"player":{"name":"Hiroki Ito"},      "team":{"name":"Urawa Red Diamonds"},   "goals":6, "assists":1,"playedMatches":14},
+    {"player":{"name":"Shu Kurata"},      "team":{"name":"Jubilo Iwata"},         "goals":5, "assists":4,"playedMatches":14},
+    {"player":{"name":"Kento Misao"},     "team":{"name":"Nagoya Grampus"},       "goals":5, "assists":2,"playedMatches":13},
+    {"player":{"name":"Diego Oliveira"},  "team":{"name":"FC Tokyo"},             "goals":4, "assists":3,"playedMatches":14}
+  ]
+}
